@@ -212,7 +212,7 @@ class HrEmployee(models.Model):
     hr_employee_sertifikasi_pelatihan_ids = fields.One2many('hr.employee.sertifikasi.pelatihan', 'employee_id', string="Sertifikasi & Pelatihan")
     hr_employee_unit_id = fields.Many2one('hr.employee.unit', string="Unit", index=True)
     keterangan_jabatan = fields.Char('Keterangan Jabatan')
-    keterangan_jabatan_id = fields.Many2one('hr.employee.keterangan.jabatan', string='Jabatan', index=True)
+    keterangan_jabatan_id = fields.Many2one('hr.employee.keterangan.jabatan', string='Jabatan', index=True, help="Pilih keterangan jabatan struktural atau umum.")
     jabatan = fields.Char('Jabatan')
     jabatan_komplit_id = fields.Many2one('hr.employee.jabatan.komplit', string='Jabatan Komplit')
 
@@ -364,8 +364,8 @@ class HrEmployee(models.Model):
     fungsi_penugasan_id = fields.Many2one('hr.employee.fungsi.penugasan', string='Jabatan TAD', index=True)
     unit_penempatan_id = fields.Many2one('hr.employee.unit.penempatan', string='Unit Penempatan', index=True)
     unit_penempatan_cabang_organik_pkwt_id = fields.Many2one('hr.employee.unit.penempatan.cabang', string='Cabang', index=True)
-    nip_organik = fields.Char('NIP')
-    nip_pkwt = fields.Char('NIP')
+    nip_organik = fields.Char('NIP', help="Nomor Induk Pegawai untuk karyawan organik.")
+    nip_pkwt = fields.Char('NIP', help="Nomor Induk Pegawai untuk karyawan PKWT.")
     status_pajak_pkwt_id = fields.Many2one('hr.employee.status.pajak', string='Status Pajak')
     edit_lock_status = fields.Selection([
         ('locked', 'Locked for Editing'),

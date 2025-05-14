@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -10,16 +10,16 @@ class AsuransiKaryawan(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Asuransi Karyawan'
 
-    name = fields.Char('Nama Asuransi', copy=False, readonly=True, default="New")
-    nomor_polis = fields.Char(required=True)
-    periode_polis = fields.Date(required=True)
-    attachment_file = fields.Binary('Upload Polis')
+    name = fields.Char('Nama Asuransi', copy=False, readonly=True, default="New", help="Nomor unik internal untuk polis asuransi karyawan, terisi otomatis.")
+    nomor_polis = fields.Char(required=True, help="Nomor polis resmi yang dikeluarkan oleh provider/perusahaan asuransi.")
+    periode_polis = fields.Date(required=True, help="Tanggal akhir periode polis asuransi ini.")
+    attachment_file = fields.Binary('Upload Polis', help="Unggah file scan dokumen polis asuransi di sini.")
     state = fields.Selection([
         ('draft', 'Draft'),
         ('aktif', 'Aktif'),
         ('expired', 'Expired')
     ], string="Status", default='draft', tracking=True)
-    jumlah_peserta = fields.Integer(string="Jumlah Peserta", compute="_compute_jumlah_peserta", store=True)
+    jumlah_peserta = fields.Integer(string="Jumlah Peserta", compute="_compute_jumlah_peserta", store=True, help="Total jumlah karyawan yang terdaftar sebagai peserta dalam polis ini.")
     currency_id = fields.Many2one(
         'res.currency',
         string="Currency",
@@ -58,8 +58,16 @@ class AsuransiKaryawan(models.Model):
             rec.total_biaya = sum(rec.line_invoice_ids.mapped('biaya'))
 
     def action_confirm(self):
-        for rec in self:
-            rec.state = 'aktif'
+        for record in self:
+            if not record.nomor_polis:
+                raise UserError(
+                    _("Nomor Polis belum diisi. Harap lengkapi terlebih dahulu sebelum mengaktifkan polis."))
+            if not record.periode_polis:
+                raise UserError(_("Periode Polis (tanggal) belum diisi. Harap lengkapi terlebih dahulu."))
+            if not record.line_peserta_ids:
+                raise UserError(_("Polis tidak bisa diaktifkan jika belum ada satu pun peserta terdaftar."))
+            record.write({'state': 'aktif'})
+        return True
 
     def action_expire(self):
         for rec in self:
@@ -74,10 +82,10 @@ class AsuransiKaryawanLinePeserta(models.Model):
     _name = 'asuransi.karyawan.line.peserta'
     _description = 'Line Peserta Asuransi Karyawan'
 
-    employee_id = fields.Many2one('hr.employee', string='Peserta', domain=[('active','=',True),('direksi', '=', False)])
-    date = fields.Date('Tanggal')
+    employee_id = fields.Many2one('hr.employee', string='Peserta', domain=[('active','=',True),('direksi', '=', False)], help="Pilih karyawan yang menjadi peserta polis asuransi ini.")
+    date = fields.Date('Tanggal', help="Tanggal pencatatan atau tanggal efektif peserta bergabung (jika berbeda dari 'Tanggal Efektif' polis).")
     email_from = fields.Char('Email dari')
-    nomor_sertifikat = fields.Char()
+    nomor_sertifikat = fields.Char(help="Nomor sertifikat individu untuk peserta ini (jika ada).")
     entity = fields.Char()
     cabang = fields.Char(related='employee_id.hr_branch_id.name', string='Cabang')
     nama_jabatan = fields.Char(related='employee_id.jabatan_komplit_id.name', string='Nama Jabatan')

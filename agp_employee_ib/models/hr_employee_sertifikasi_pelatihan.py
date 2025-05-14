@@ -6,8 +6,10 @@ class HrEmployeeSertifikasiPelatihan(models.Model):
     _description = "Employee (Sertifikasi & Pelatihan)"
     _order = "certification_start_date asc"
 
-    name = fields.Char('NIK')
-    employee_name = fields.Char('Nama Pegawai')
+    name = fields.Char()
+    organizer = fields.Char()
+    certificate_number_official = fields.Char()
+    originating_training_course_id = fields.Many2one('training.course')
     certificate_doc_attachment = fields.Binary('Sertifikat Document', attachment=True)
     certificate_attachment_id = fields.Many2many('ir.attachment', string='Sertifikat Document')
     certificate_doc_name = fields.Char('Sertifikat Name')

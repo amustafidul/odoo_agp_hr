@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 {
     'name': "AGP Employee",
-    'summary': """
-        Short (1 phrase/line) summary of the module's purpose, used as"""
-                  """ subtitle on modules listing or apps.openerp.com""",
+    'summary': "Enhancements for Employee Management AGP, including detailed data, history, and specific workflows.",
     'description': """
-        Long description of module's purpose
+        This module extends Odoo's HR capabilities for AGP, focusing on:
+        - Detailed employee information (personal, job, salary, koperasi, uniform).
+        - Comprehensive job history (histori_jabatan) with contract linking.
+        - Custom leave approval workflows.
+        - Management of company regulations, UMK, insurance, and TAD vendors.
+        - Employee dashboard and custom reports.
     """,
     'author': "Abhimantra - Ibad",
     'website': "https://abhimantra.co.id/",

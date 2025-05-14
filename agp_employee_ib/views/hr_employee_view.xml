@@ -154,7 +154,7 @@
                     <field name="hr_employee_sertifikasi_pelatihan_ids" attrs="{'readonly': [('is_editor_employee_data','=',False)]}">
                         <tree editable="bottom">
                             <field name="name" string="Nama Training"/>
-                            <field name="employee_name" string="Penyelenggara"/>
+                            <field name="organizer" string="Penyelenggara"/>
                             <field name="certificate_doc_attachment" invisible="1"/>
                             <field name="certificate_attachment_id" filename="certificate_filename" widget="many2many_binary"/>
                             <field name="certificate_filename" invisible="1"/>
