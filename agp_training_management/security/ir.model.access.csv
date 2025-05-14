@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_tna_training_scope_hr_user,tna.training.scope.hr_user,model_tna_training_scope,hr.group_hr_user,1,1,1,1
+access_tna_training_scope_system,tna.training.scope.system,model_tna_training_scope,base.group_system,1,1,1,1
+access_tna_period_hr_user,tna.period.hr_user,model_tna_period,hr.group_hr_user,1,1,1,1
+access_tna_period_system,tna.period.system,model_tna_period,base.group_system,1,1,1,1
+access_tna_submission_hr_user,tna.submission.hr_user,model_tna_submission,hr.group_hr_user,1,1,1,1
+access_tna_submission_system,tna.submission.system,model_tna_submission,base.group_system,1,1,1,1
+access_tna_submission_base_user_read_only,tna.submission.base_user_read,model_tna_submission,base.group_user,1,0,0,0
+access_tna_proposed_training_hr_user,tna.proposed.training.hr_user,model_tna_proposed_training,hr.group_hr_user,1,1,1,1
+access_tna_proposed_training_system,tna.proposed.training.system,model_tna_proposed_training,base.group_system,1,1,1,1
+access_tna_proposed_training_base_user_read_only,tna.proposed.training.base_user_read,model_tna_proposed_training,base.group_user,1,0,0,0
+access_training_course_hr_user_realization,training.course.hr_user_realization,model_training_course,hr.group_hr_user,1,1,1,1
+access_training_course_system_realization,training.course.system_realization,model_training_course,base.group_system,1,1,1,1
+access_training_evaluation_hr_user_realization,training.evaluation.hr_user_realization,model_training_evaluation,hr.group_hr_user,1,1,1,1
+access_training_evaluation_system_realization,training.evaluation.system_realization,model_training_evaluation,base.group_system,1,1,1,1

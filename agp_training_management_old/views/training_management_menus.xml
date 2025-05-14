@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        id="menu_agp_training_root"
+        name="Training AGP"
+        web_icon="agp_training_management,static/description/odoo_icon_training.png" sequence="35"/>
+
+    <menuitem
+        id="menu_tna_main"
+        name="Training Need Analysis"
+        parent="menu_agp_training_root"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_tna_period"
+        name="Periode TNA"
+        parent="menu_tna_main"
+        action="action_tna_period"
+        sequence="10"
+        groups="hr.group_hr_user"/>
+
+    <menuitem
+        id="menu_tna_submission_my"
+        name="Usulan TNA Saya"
+        parent="menu_tna_main"
+        action="action_tna_submission_my"
+        sequence="20"
+        groups="base.group_user"/>
+
+    <menuitem
+        id="menu_tna_submission_all_sdm"
+        name="Semua Usulan TNA (SDM)"
+        parent="menu_tna_main"
+        action="action_tna_submission_all_sdm"
+        sequence="30"
+        groups="hr.group_hr_user"/>
+
+    <menuitem
+        id="menu_tna_proposed_training_all_sdm_review"
+        name="Review Usulan Training (SDM)"
+        parent="menu_tna_main"
+        action="action_tna_proposed_training_all_sdm_review"
+        sequence="40"
+        groups="hr.group_hr_user"/>
+
+    <menuitem
+        id="menu_training_execution_main"
+        name="Pelaksanaan Training"
+        parent="menu_agp_training_root"
+        sequence="20"/>
+
+    <menuitem
+        id="menu_training_reports_main"
+        name="Laporan Training"
+        parent="menu_agp_training_root"
+        sequence="30"/>
+
+    <menuitem
+        id="menu_training_config_main"
+        name="Konfigurasi Training"
+        parent="menu_agp_training_root"
+        sequence="99"
+        groups="hr.group_hr_manager"/>
+
+    <menuitem
+            id="menu_tna_training_scope_config"
+            name="Lingkup Diklat"
+            parent="menu_training_config_main"
+            action="action_tna_training_scope"
+            sequence="10"/>
+</odoo>

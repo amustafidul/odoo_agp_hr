@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_hr_leave_dinas_modify_wizard_form" model="ir.ui.view">
+        <field name="name">hr.leave.dinas.modify.wizard.form</field>
+        <field name="model">hr.leave.dinas.modify.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Modifikasi Perjalanan">
+                <group>
+                    <field name="modification_type"/>
+                    <field name="new_date_to" attrs="{'invisible': [('modification_type', 'not in', ['early_return','extend_days'])]}"/>
+                    <field name="new_sppd_location" attrs="{'invisible': [('modification_type', 'not in', ['change_location'])]}"/>
+                    <field name="reason"/>
+                </group>
+                <footer>
+                    <button string="Terapkan" type="object" name="action_apply_modification" class="btn-primary"/>
+                    <button string="Batal" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <act_window id="action_hr_leave_dinas_modify_wizard"
+                name="Modifikasi Perjalanan"
+                res_model="hr.leave.dinas.modify.wizard"
+                view_mode="form"
+                target="new"
+                view_id="view_hr_leave_dinas_modify_wizard_form"
+                context="{'default_leave_dinas_id': active_id}" />
+</odoo>
