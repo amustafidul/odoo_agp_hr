@@ -12,7 +12,8 @@
                       quick_add="false"
                       mode="month">
                 <field name="name" string="Nama Training"/>
-                <field name="training_scope_id" string="Lingkup Diklat" filters="1" invisible="0"/> <field name="branch_id" string="Cabang" filters="1" invisible="0"/>
+                <field name="training_scope_id" string="Lingkup Diklat" filters="1" invisible="0"/>
+                <field name="branch_id" string="Cabang" filters="1" invisible="0"/>
                 <field name="state" string="Status" filters="1" invisible="0"/>
                 </calendar>
         </field>
@@ -102,7 +103,7 @@
                         </page>
                         <page string="Evaluasi Training" name="page_evaluations"
                               attrs="{'invisible': [('state', 'not in', ['ongoing', 'completed'])]}">
-                            <field name="evaluation_ids" readonly="1">
+                            <field name="evaluation_ids">
                                 <tree>
                                     <field name="employee_id"/>
                                     <field name="total_score_finish"/>

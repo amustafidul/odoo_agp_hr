@@ -99,25 +99,55 @@
                                     <field name="currency_id" invisible="1" force_save="1"/>
                                     <field name="proposed_organizer" attrs="{'readonly': [('state', 'not in', ['new', 'pending_approval'])]}"/>
                                 </group>
-                                <group string="Rekapitulasi Biaya per Tipe Karyawan (Estimasi)">
-                                    <field name="participants_for_rekap_organik" readonly="1" force_save="1"/>
-                                    <field name="cost_for_rekap_organik" readonly="1" force_save="1"/>
-                                    <field name="participants_for_rekap_tad_pkwt" readonly="1" force_save="1"/>
-                                    <field name="cost_for_rekap_tad_pkwt" readonly="1" force_save="1"/>
-                                    <field name="days_for_rekap_organik" readonly="1" force_save="1" optional="show"/>
-                                    <field name="days_for_rekap_tad_pkwt" readonly="1" force_save="1" optional="show"/>
-                                </group>
                             </group>
                         </page>
-                        <page string="Peserta Diusulkan">
-                             <field name="proposed_employee_ids" widget="many2many_tags" options="{'no_create': True}" attrs="{'readonly': [('state', 'not in', ['new', 'pending_approval'])]}"/>
-                             <field name="estimated_participant_count" readonly="1" force_save="1"/>
+                        <page string="Peserta Diusulkan &amp; Biaya Individual" name="page_participants">
+                            <field name="participant_line_ids"
+                                   attrs="{'readonly': [('state', 'not in', ['new', 'pending_approval'])]}"
+                                   context="{'default_proposed_training_id': active_id, 'default_currency_id': currency_id}">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="employee_id" required="1" options="{'no_create': True}"/>
+                                    <field name="employment_type" readonly="1" force_save="1"/>
+                                    <field name="estimated_cost_participant" required="1" sum="Total Biaya Peserta"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="notes" optional="show"/>
+                                </tree>
+                                <form> <group>
+                                        <field name="employee_id" required="1"/>
+                                        <field name="employment_type" readonly="1"/>
+                                        <field name="estimated_cost_participant" required="1"/>
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="notes"/>
+                                    </group>
+                                </form>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right" name="tna_proposed_training_total_manual">
+                                <field name="estimated_participant_count" nolabel="0" readonly="1" force_save="1"/>
+                                <field name="estimated_cost" nolabel="0" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1" force_save="1"/>
+                            </group>
+                            <div style="clear:both;"/>
+                        </page>
+                        <page string="Rekapitulasi Otomatis (Review SDM)" groups="hr.group_hr_user" name="page_rekap_sdm">
+                             <group string="Rekapitulasi Peserta &amp; Biaya per Tipe Karyawan">
+                                <group>
+                                    <field name="participants_for_rekap_organik" readonly="1" force_save="1"/>
+                                    <field name="cost_for_rekap_organik" readonly="1" force_save="1"/>
+                                    <field name="days_for_rekap_organik" readonly="1" force_save="1" string="Man-days Organik"/>
+                                </group>
+                                <group>
+                                    <field name="participants_for_rekap_tad_pkwt" readonly="1" force_save="1"/>
+                                    <field name="cost_for_rekap_tad_pkwt" readonly="1" force_save="1"/>
+                                    <field name="days_for_rekap_tad_pkwt" readonly="1" force_save="1" string="Man-days TAD/PKWT"/>
+                                </group>
+                            </group>
                         </page>
                         <page string="Review &amp; Status SDM" groups="hr.group_hr_manager">
                             <group>
                                 <field name="sdm_approver_id" readonly="1"/>
                                 <field name="approval_date" readonly="1"/>
-                                <field name="rejection_reason" attrs="{'readonly': [('state', 'not in', ['new', 'pending_approval'])]}"/> <field name="training_realization_id" readonly="1" string="Link ke Realisasi Training"/>
+                                <field name="rejection_reason" attrs="{'readonly': [('state', 'not in', ['new', 'pending_approval'])]}"/>
+                                <field name="training_realization_id" readonly="1" string="Link ke Realisasi Training"/>
                             </group>
                         </page>
                     </notebook>

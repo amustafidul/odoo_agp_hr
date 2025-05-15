@@ -37,22 +37,18 @@ class TnaProposedTraining(models.Model):
         string='Justifikasi & Deskripsi Kebutuhan',
         help="Jelaskan mengapa pelatihan ini dibutuhkan, apa tujuannya, dan manfaat yang diharapkan."
     )
-    proposed_employee_ids = fields.Many2many(
-        'hr.employee',
-        'tna_proposed_training_employee_rel',
+    participant_line_ids = fields.One2many(
+        'tna.proposed.participant',
         'proposed_training_id',
-        'employee_id',
-        string='Nama Peserta Diusulkan',
-        tracking=True,
-        copy=True,
-        help="Pilih karyawan yang diusulkan untuk mengikuti training ini."
+        string='Peserta Diusulkan & Biaya',
+        copy=True
     )
     estimated_participant_count = fields.Integer(
-        string='Estimasi Jumlah Peserta',
-        compute='_compute_estimated_participant_count',
+        string='Jumlah Peserta Diusulkan',
+        compute='_compute_totals_from_participants',
         store=True,
         tracking=True,
-        help="Jumlah peserta otomatis berdasarkan 'Nama Peserta Diusulkan'."
+        help="Jumlah total peserta dari daftar di bawah."
     )
     proposed_period_char = fields.Char(
         string='Periode Pelaksanaan (Usulan)',
@@ -68,11 +64,12 @@ class TnaProposedTraining(models.Model):
         tracking=True
     )
     estimated_cost = fields.Monetary(
-        string='Estimasi Biaya',
+        string='Total Estimasi Biaya Training',
         currency_field='currency_id',
+        compute='_compute_totals_from_participants',
+        store=True,
         tracking=True,
-        required=True,
-        help="Perkiraan total biaya untuk pelaksanaan training ini."
+        help="Total estimasi biaya dari semua peserta yang diusulkan."
     )
     currency_id = fields.Many2one(
         'res.currency',
@@ -195,8 +192,14 @@ class TnaProposedTraining(models.Model):
         help="Jumlah peserta TAD/PKWT"
     )
 
-    @api.depends('proposed_employee_ids', 'estimated_cost', 'estimated_duration_days',
-                 'proposed_employee_ids.employment_type')
+    @api.depends('participant_line_ids.estimated_cost_participant')
+    def _compute_totals_from_participants(self):
+        for rec in self:
+            rec.estimated_participant_count = len(rec.participant_line_ids)
+            rec.estimated_cost = sum(line.estimated_cost_participant for line in rec.participant_line_ids)
+
+    @api.depends('participant_line_ids.estimated_cost_participant', 'participant_line_ids.employment_type',
+                 'estimated_duration_days')
     def _compute_rekap_fields(self):
         for rec in self:
             rec.cost_for_rekap_organik = 0
@@ -206,29 +209,27 @@ class TnaProposedTraining(models.Model):
             rec.participants_for_rekap_organik = 0
             rec.participants_for_rekap_tad_pkwt = 0
 
-            if not rec.proposed_employee_ids:
-                pass
-            else:
-                num_organik = sum(1 for emp in rec.proposed_employee_ids if emp.employment_type == 'organik')
-                num_tad_pkwt = sum(1 for emp in rec.proposed_employee_ids if emp.employment_type in ['tad', 'pkwt'])
+            num_organik = 0
+            num_tad_pkwt = 0
+            cost_organik_sum = 0.0
+            cost_tad_pkwt_sum = 0.0
 
-                rec.participants_for_rekap_organik = num_organik
-                rec.participants_for_rekap_tad_pkwt = num_tad_pkwt
+            for line in rec.participant_line_ids:
+                if line.employment_type == 'organik':
+                    num_organik += 1
+                    cost_organik_sum += line.estimated_cost_participant
+                elif line.employment_type in ['tad', 'pkwt']:
+                    num_tad_pkwt += 1
+                    cost_tad_pkwt_sum += line.estimated_cost_participant
 
-                total_participants_for_cost_split = len(rec.proposed_employee_ids) or 1
-                cost_per_participant = rec.estimated_cost / total_participants_for_cost_split
+            rec.participants_for_rekap_organik = num_organik
+            rec.participants_for_rekap_tad_pkwt = num_tad_pkwt
+            rec.cost_for_rekap_organik = cost_organik_sum
+            rec.cost_for_rekap_tad_pkwt = cost_tad_pkwt_sum
 
-                rec.cost_for_rekap_organik = cost_per_participant * num_organik
-                rec.cost_for_rekap_tad_pkwt = cost_per_participant * num_tad_pkwt
-
-                if rec.estimated_duration_days:
-                    rec.days_for_rekap_organik = num_organik * rec.estimated_duration_days
-                    rec.days_for_rekap_tad_pkwt = num_tad_pkwt * rec.estimated_duration_days
-
-    @api.depends('proposed_employee_ids')
-    def _compute_estimated_participant_count(self):
-        for record in self:
-            record.estimated_participant_count = len(record.proposed_employee_ids)
+            if rec.estimated_duration_days:
+                rec.days_for_rekap_organik = num_organik * rec.estimated_duration_days
+                rec.days_for_rekap_tad_pkwt = num_tad_pkwt * rec.estimated_duration_days
 
     @api.depends('submission_id', 'submission_id.currency_id')
     def _compute_currency_id(self):
@@ -294,18 +295,12 @@ class TnaProposedTraining(models.Model):
         if self.state != 'pending_approval':
             raise UserError("Hanya usulan yang statusnya 'Menunggu Approval SDM' yang bisa ditolak.")
 
-        # Dianjurkan menggunakan wizard untuk mengisi alasan penolakan yang proper
-        # if not self.rejection_reason:
-        #     raise UserError("Harap isi Alasan Penolakan sebelum menolak usulan.")
-
         self.write({
             'state': 'rejected',
             'sdm_approver_id': self.env.user.id,
             'approval_date': fields.Datetime.now()
-            # rejection_reason diisi manual di form
         })
 
-        # Kirim notifikasi ke pengusul
         if self.submission_id.user_id:
             self.activity_schedule(
                 activity_type_id=self.env.ref('mail.mail_activity_data_todo').id,
@@ -323,12 +318,16 @@ class TnaProposedTraining(models.Model):
             raise UserError(
                 f"Usulan ini sudah direalisasikan sebelumnya (Realisasi: {self.training_realization_id.name}).")
 
+        final_employee_ids = self.participant_line_ids.mapped('employee_id').ids
+        if not final_employee_ids:
+            raise UserError("Tidak ada peserta yang diusulkan dalam daftar.")
+
         training_course_vals = {
             'name': self.name,
             'originating_tna_id': self.id,
             'training_scope_id': self.training_scope_id.id if self.training_scope_id else False,
             'description': self.description,
-            'employee_ids': [(6, 0, self.proposed_employee_ids.ids)],
+            'employee_ids': [(6, 0, final_employee_ids)],
             'budgeted_cost': self.estimated_cost,
             'currency_id': self.currency_id.id if self.currency_id else self.env.company.currency_id.id,
             'organizer': self.proposed_organizer,
@@ -371,7 +370,7 @@ class TnaProposedTraining(models.Model):
 
     def action_set_to_pending_approval(self):
         """Mengembalikan state ke 'pending_approval' oleh SDM jika ada kesalahan."""
-        # Tambahkan pengecekan hak akses jika perlu
+        # Add pengecekan hak akses jika perlu
         # if not self.env.user.has_group('hr.group_hr_manager'):
         #     raise UserError("Hanya SDM yang bisa melakukan aksi ini.")
 

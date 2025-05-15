@@ -189,7 +189,6 @@ class TnaSubmission(models.Model):
             'submission_date': fields.Datetime.now()
         })
         # TODO: Kirim notifikasi ke grup SDM atau Penanggung Jawab Periode TNA
-        # Misalnya, jika period_id.responsible_user_id ada:
         # if self.period_id.responsible_user_id:
         #     self.activity_schedule(
         #         'mail.mail_activity_data_todo',

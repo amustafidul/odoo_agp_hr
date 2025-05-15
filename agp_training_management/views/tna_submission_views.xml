@@ -90,11 +90,10 @@
                                     'default_period_id': period_id,
                                     'default_company_id': company_id,
                                     'default_currency_id': currency_id}">
-                                <tree editable="bottom">
+                                <tree>
                                     <field name="sequence" widget="handle"/>
                                     <field name="name" required="1" string="Nama Training/Diklat"/>
                                     <field name="training_scope_id" options="{'no_create': True}"/>
-                                    <field name="proposed_employee_ids" widget="many2many_tags" options="{'no_create': True}" string="Peserta Diusulkan"/>
                                     <field name="estimated_participant_count" force_save="1" readonly="1"/>
                                     <field name="estimated_duration_days" string="Durasi (Hari)"/>
                                     <field name="estimated_duration_hours" string="Durasi (Jam)"/>
@@ -125,8 +124,32 @@
                                             <field name="proposed_organizer"/>
                                         </group>
                                         <separator string="Peserta Diusulkan"/>
-                                        <field name="proposed_employee_ids" widget="many2many_tags" options="{'no_create': True}"/>
-                                        <field name="estimated_participant_count" readonly="1" force_save="1"/>
+                                        <field name="state" invisible="1"/>
+                                        <field name="participant_line_ids"
+                                               attrs="{'readonly': [('state', 'not in', ['new', 'pending_approval'])]}"
+                                               context="{'default_proposed_training_id': active_id, 'default_currency_id': currency_id}">
+                                            <tree editable="bottom">
+                                                <field name="sequence" widget="handle"/>
+                                                <field name="employee_id" required="1" options="{'no_create': True}"/>
+                                                <field name="employment_type" readonly="1" force_save="1"/>
+                                                <field name="estimated_cost_participant" required="1" sum="Total Biaya Peserta"/>
+                                                <field name="currency_id" invisible="1"/>
+                                                <field name="notes" optional="show"/>
+                                            </tree>
+                                            <form> <group>
+                                                    <field name="employee_id" required="1"/>
+                                                    <field name="employment_type" readonly="1"/>
+                                                    <field name="estimated_cost_participant" required="1"/>
+                                                    <field name="currency_id" invisible="1"/>
+                                                    <field name="notes"/>
+                                                </group>
+                                            </form>
+                                        </field>
+                                        <group class="oe_subtotal_footer oe_right" name="tna_proposed_training_total_manual">
+                                            <field name="estimated_participant_count" nolabel="0" readonly="1" force_save="1"/>
+                                            <field name="estimated_cost" nolabel="0" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1" force_save="1"/>
+                                        </group>
+                                        <div style="clear:both;"/>
                                         <separator string="Informasi Tambahan (Readonly dari Header)"/>
                                         <group>
                                             <field name="department_id" readonly="1"/>

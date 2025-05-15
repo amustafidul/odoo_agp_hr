@@ -79,4 +79,8 @@
         name="Lingkup Diklat"
         parent="menu_training_config_main"
         action="action_tna_training_scope" sequence="10"/>
+
+    <menuitem
+        id="menu_wizard_tna_rekap" name="Laporan Rekapitulasi TNA" parent="menu_training_reports_main"
+        action="action_tna_rekap_report_wizard" sequence="20"/>
 </odoo>

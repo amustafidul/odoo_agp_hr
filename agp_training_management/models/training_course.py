@@ -103,21 +103,6 @@ class TrainingCourse(models.Model):
             except KeyError:
                 record.evaluation_count = 0
 
-
-    # --- Tombol Aksi Workflow untuk Realisasi ---
-    # Akan kita buat nanti (action_register, action_mark_paid, action_start_training, action_complete_training, action_cancel)
-
-    # --- Method action_view_evaluations (dari modul lama) ---
-    # Ini akan kita pindahkan/adaptasi nanti saat memproses training_evaluation.py
-    # Untuk sekarang, cukup kerangka modelnya dulu.
-
-    # --- HAPUS METHOD LAMA dari agp_training_ib.training_course.py ---
-    # Seperti action_submit, action_set_to_draft (yang untuk alur permohonan lama)
-    # Dan create_training_evaluation (logika ini akan pindah ke cron atau model evaluation)
-    # Juga _compute_training_year, _compute_training_date_range, _compute_duration (yang lama)
-    # _compute_evaluation_count bisa dipertahankan jika field evaluation_ids dan modelnya sudah ada.
-    # action_generate_sample_data juga bisa dihapus atau diadaptasi.
-
     def action_set_state_completed(self):
         self.ensure_one()
 
@@ -147,8 +132,6 @@ class TrainingCourse(models.Model):
                 ], limit=1)
 
                 if not existing_evaluation:
-                    # Siapkan nilai default untuk evaluasi
-                    # default_get dari training.evaluation akan mengisi evaluation_line_ids
                     eval_vals = TrainingEvaluation.default_get(TrainingEvaluation.fields_get_keys())
 
                     eval_vals.update({

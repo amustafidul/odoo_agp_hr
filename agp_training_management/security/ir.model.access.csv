@@ -6,6 +6,8 @@ access_tna_period_system,tna.period.system,model_tna_period,base.group_system,1,
 access_tna_submission_hr_user,tna.submission.hr_user,model_tna_submission,hr.group_hr_user,1,1,1,1
 access_tna_submission_system,tna.submission.system,model_tna_submission,base.group_system,1,1,1,1
 access_tna_submission_base_user_read_only,tna.submission.base_user_read,model_tna_submission,base.group_user,1,0,0,0
+access_tna_proposed_participant_user,tna.proposed.participant.user,model_tna_proposed_participant,base.group_user,1,1,1,1
+access_tna_proposed_participant_hr_user,tna.proposed.participant.hr_user,model_tna_proposed_participant,hr.group_hr_user,1,1,1,1
 access_tna_proposed_training_hr_user,tna.proposed.training.hr_user,model_tna_proposed_training,hr.group_hr_user,1,1,1,1
 access_tna_proposed_training_system,tna.proposed.training.system,model_tna_proposed_training,base.group_system,1,1,1,1
 access_tna_proposed_training_base_user_read_only,tna.proposed.training.base_user_read,model_tna_proposed_training,base.group_user,1,0,0,0
@@ -16,3 +18,4 @@ access_training_evaluation_system_realization,training.evaluation.system_realiza
 access_training_evaluation_line_system_realization,training.evaluation.line.system_realization,model_training_evaluation_line,base.group_system,1,1,1,1
 access_hr_employee_completed_training_user,hr.employee.completed.training.user,model_hr_employee_completed_training,base.group_user,1,0,0,0
 access_hr_employee_completed_training_hr_manager,hr.employee.completed.training.hr_manager,model_hr_employee_completed_training,hr.group_hr_manager,1,1,1,1
+access_tna_rekap_report_wizard,tna.rekap.report.wizard,model_tna_rekap_report_wizard,,1,1,1,1
