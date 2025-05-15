@@ -26,6 +26,7 @@
     'data': [
         'data/ir_sequence_data.xml',
         'data/ir_cron_data.xml',
+        'security/training_management_security_rules.xml',
         'security/ir.model.access.csv',
         'report/tna_report_actions.xml',
         'wizard/tna_rekap_report_wizard_views.xml',
