@@ -30,6 +30,9 @@ Modul komprehensif untuk pengelolaan seluruh siklus pelatihan karyawan:
         'views/tna_period_views.xml',
         'views/tna_submission_views.xml',
         'views/tna_proposed_training_views.xml',
+        'views/hr_employee_completed_training_views.xml',
+        'views/hr_employee_views.xml',
+        'views/training_course_views.xml',
         'views/training_management_menus.xml',
     ],
     'assets': {

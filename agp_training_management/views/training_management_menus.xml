@@ -37,10 +37,8 @@
 
     <menuitem
         id="menu_tna_proposed_training_all_sdm_review"
-        name="Review Usulan Training (SDM)"
-        parent="menu_tna_main"
-        action="action_tna_proposed_training_all_sdm_review"
-        sequence="40"
+        name="Review &amp; Realisasi Usulan (SDM)" parent="menu_tna_main"
+        action="action_tna_proposed_training_all_sdm_review" sequence="40"
         groups="hr.group_hr_user"/>
 
     <menuitem
@@ -50,10 +48,24 @@
         sequence="20"/>
 
     <menuitem
+        id="menu_training_course_all_action"
+        name="Semua Pelaksanaan Training"
+        parent="menu_training_execution_main"
+        action="action_training_course_all" sequence="10"
+        groups="hr.group_hr_user"/>
+
+    <menuitem
         id="menu_training_reports_main"
         name="Laporan Training"
         parent="menu_agp_training_root"
-        sequence="30"/>
+        sequence="30"
+        groups="hr.group_hr_user"/>
+
+    <menuitem
+        id="menu_report_employee_completed_training"
+        name="Histori Training per Karyawan"
+        parent="menu_training_reports_main"
+        action="action_hr_employee_completed_training" sequence="10"/>
 
     <menuitem
         id="menu_training_config_main"
@@ -63,9 +75,8 @@
         groups="hr.group_hr_manager"/>
 
     <menuitem
-            id="menu_tna_training_scope_config"
-            name="Lingkup Diklat"
-            parent="menu_training_config_main"
-            action="action_tna_training_scope"
-            sequence="10"/>
+        id="menu_tna_training_scope_config"
+        name="Lingkup Diklat"
+        parent="menu_training_config_main"
+        action="action_tna_training_scope" sequence="10"/>
 </odoo>

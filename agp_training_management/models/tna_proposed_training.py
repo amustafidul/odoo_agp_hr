@@ -156,6 +156,74 @@ class TnaProposedTraining(models.Model):
         compute='_compute_can_approve_or_reject',
         string="Bisa Approve/Reject?"
     )
+    cost_for_rekap_organik = fields.Monetary(
+        string='Biaya Rekap (Organik)',
+        currency_field='currency_id',
+        compute='_compute_rekap_fields',
+        store=True,
+        help="Estimasi biaya training untuk peserta Organik"
+    )
+    cost_for_rekap_tad_pkwt = fields.Monetary(
+        string='Biaya Rekap (TAD/PKWT)',
+        currency_field='currency_id',
+        compute='_compute_rekap_fields',
+        store=True,
+        help="Estimasi biaya training untuk peserta TAD/PKWT"
+    )
+    days_for_rekap_organik = fields.Integer(
+        string='Hari Rekap (Organik)',
+        compute='_compute_rekap_fields',
+        store=True,
+        help="Estimasi total hari training untuk peserta Organik (jumlah peserta x durasi)"
+    )
+    days_for_rekap_tad_pkwt = fields.Integer(
+        string='Hari Rekap (TAD/PKWT)',
+        compute='_compute_rekap_fields',
+        store=True,
+        help="Estimasi total hari training untuk peserta TAD/PKWT (jumlah peserta x durasi)"
+    )
+    participants_for_rekap_organik = fields.Integer(
+        string='Peserta Rekap (Organik)',
+        compute='_compute_rekap_fields',
+        store=True,
+        help="Jumlah peserta Organik"
+    )
+    participants_for_rekap_tad_pkwt = fields.Integer(
+        string='Peserta Rekap (TAD/PKWT)',
+        compute='_compute_rekap_fields',
+        store=True,
+        help="Jumlah peserta TAD/PKWT"
+    )
+
+    @api.depends('proposed_employee_ids', 'estimated_cost', 'estimated_duration_days',
+                 'proposed_employee_ids.employment_type')
+    def _compute_rekap_fields(self):
+        for rec in self:
+            rec.cost_for_rekap_organik = 0
+            rec.cost_for_rekap_tad_pkwt = 0
+            rec.days_for_rekap_organik = 0
+            rec.days_for_rekap_tad_pkwt = 0
+            rec.participants_for_rekap_organik = 0
+            rec.participants_for_rekap_tad_pkwt = 0
+
+            if not rec.proposed_employee_ids:
+                pass
+            else:
+                num_organik = sum(1 for emp in rec.proposed_employee_ids if emp.employment_type == 'organik')
+                num_tad_pkwt = sum(1 for emp in rec.proposed_employee_ids if emp.employment_type in ['tad', 'pkwt'])
+
+                rec.participants_for_rekap_organik = num_organik
+                rec.participants_for_rekap_tad_pkwt = num_tad_pkwt
+
+                total_participants_for_cost_split = len(rec.proposed_employee_ids) or 1
+                cost_per_participant = rec.estimated_cost / total_participants_for_cost_split
+
+                rec.cost_for_rekap_organik = cost_per_participant * num_organik
+                rec.cost_for_rekap_tad_pkwt = cost_per_participant * num_tad_pkwt
+
+                if rec.estimated_duration_days:
+                    rec.days_for_rekap_organik = num_organik * rec.estimated_duration_days
+                    rec.days_for_rekap_tad_pkwt = num_tad_pkwt * rec.estimated_duration_days
 
     @api.depends('proposed_employee_ids')
     def _compute_estimated_participant_count(self):
@@ -203,42 +271,18 @@ class TnaProposedTraining(models.Model):
         if self.state != 'pending_approval':
             raise UserError("Hanya usulan yang statusnya 'Menunggu Approval SDM' yang bisa disetujui.")
 
-        training_course_vals = {
-            'name': self.name,
-            'originating_tna_id': self.id,
-            'training_scope_id': self.training_scope_id.id if self.training_scope_id else False,
-            'description': self.description,
-            'employee_ids': [(6, 0, self.proposed_employee_ids.ids)],
-            'budgeted_cost': self.estimated_cost,
-            'currency_id': self.currency_id.id if self.currency_id else self.env.company.currency_id.id,
-            'organizer': self.proposed_organizer,
-            'branch_id': self.branch_id.id if self.branch_id else False,
-            'department_id': self.department_id.id if self.department_id else False,
-            'company_id': self.company_id.id if self.company_id else self.env.company.id,
-            'state': 'draft',
-            # 'planned_start_date': Bisa diisi jika proposed_period_char bisa diparsing
-            # 'planned_duration_days': self.estimated_duration_days,
-        }
-
-        try:
-            training_course_model = self.env['training.course']
-        except KeyError:
-            raise UserError("Model 'training.course' belum terdefinisi. Harap buat kerangka model tersebut terlebih dahulu.")
-
-        new_realization_training = training_course_model.create(training_course_vals)
-
         self.write({
             'state': 'approved',
             'sdm_approver_id': self.env.user.id,
             'approval_date': fields.Datetime.now(),
-            'training_realization_id': new_realization_training.id
+            'rejection_reason': False
         })
 
         if self.submission_id.user_id:
             self.activity_schedule(
                 activity_type_id=self.env.ref('mail.mail_activity_data_todo').id,
                 summary=f"Usulan training '{self.name}' telah DISETUJUI",
-                note=f"Usulan training '{self.name}' dari form {self.submission_id.name} telah disetujui dan akan diproses untuk realisasi. ID Realisasi: {new_realization_training.name_get()[0][1] if new_realization_training else 'N/A'}",
+                note=f"Usulan training '{self.name}' dari form {self.submission_id.name} telah disetujui oleh SDM. Tindak lanjut untuk realisasi dapat dilakukan.",
                 user_id=self.submission_id.user_id.id
             )
         return True
@@ -270,6 +314,60 @@ class TnaProposedTraining(models.Model):
                 user_id=self.submission_id.user_id.id
             )
         return True
+
+    def action_realize_training(self):
+        self.ensure_one()
+        if self.state != 'approved':
+            raise UserError("Hanya usulan yang sudah berstatus 'Disetujui SDM' yang bisa direalisasikan.")
+        if self.training_realization_id:
+            raise UserError(
+                f"Usulan ini sudah direalisasikan sebelumnya (Realisasi: {self.training_realization_id.name}).")
+
+        training_course_vals = {
+            'name': self.name,
+            'originating_tna_id': self.id,
+            'training_scope_id': self.training_scope_id.id if self.training_scope_id else False,
+            'description': self.description,
+            'employee_ids': [(6, 0, self.proposed_employee_ids.ids)],
+            'budgeted_cost': self.estimated_cost,
+            'currency_id': self.currency_id.id if self.currency_id else self.env.company.currency_id.id,
+            'organizer': self.proposed_organizer,
+            'branch_id': self.branch_id.id if self.branch_id else False,
+            'department_id': self.department_id.id if self.department_id else False,
+            'company_id': self.company_id.id if self.company_id else self.env.company.id,
+            'state': 'draft',
+            # 'rkap_link_notes': "Direalisasikan dari Usulan TNA: " + self.submission_id.name + " - " + self.name, # Contoh
+            # Field lain yang relevan dari blueprint untuk training.realization
+            # 'planned_start_date': Bisa diisi jika proposed_period_char bisa diparsing, atau dikosongkan dulu
+            # 'planned_duration_days': self.estimated_duration_days,
+        }
+
+        try:
+            training_course_model = self.env['training.course']
+        except KeyError:
+            raise UserError("Model 'training.course' belum terdefinisi.")
+
+        new_realization_training = training_course_model.create(training_course_vals)
+
+        self.write({
+            'state': 'realized',
+            'training_realization_id': new_realization_training.id
+        })
+
+        self.activity_schedule(
+            activity_type_id=self.env.ref('mail.mail_activity_data_todo').id,
+            summary=f"Training '{self.name}' telah DIBUATKAN REALISASI",
+            note=f"Usulan training '{self.name}' telah berhasil direalisasikan. Silakan lengkapi data pelaksanaan pada Realisasi Training: {new_realization_training.name_get()[0][1] if new_realization_training else 'N/A'}.",
+            user_id=self.env.user.id
+        )
+
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'training.course',
+            'view_mode': 'form',
+            'res_id': new_realization_training.id,
+            'target': 'current',
+        }
 
     def action_set_to_pending_approval(self):
         """Mengembalikan state ke 'pending_approval' oleh SDM jika ada kesalahan."""
