@@ -66,7 +66,7 @@
                     </div>
                     <group>
                         <group id="group_left">
-                            <field name="period_id" options="{'no_create': True, 'no_open': True}" attrs="{'readonly': [('state', '!=', 'draft')]}" domain="[('state', '=', 'open')]" context="{'default_state':'open'}"/>
+                            <field name="period_id" options="{'no_create': True, 'no_open': True}" attrs="{'readonly': [('state', '!=', 'draft')]}" context="{'default_state':'open'}"/>
                             <field name="department_id" options="{'no_create': True, 'no_open': True}" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             <field name="branch_id" options="{'no_create': True, 'no_open': True}" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             <field name="company_id" invisible="1"/>
@@ -136,7 +136,8 @@
                                                 <field name="currency_id" invisible="1"/>
                                                 <field name="notes" optional="show"/>
                                             </tree>
-                                            <form> <group>
+                                            <form>
+                                                <group>
                                                     <field name="employee_id" required="1"/>
                                                     <field name="employment_type" readonly="1"/>
                                                     <field name="estimated_cost_participant" required="1"/>

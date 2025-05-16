@@ -15,7 +15,7 @@
                 <field name="training_scope_id" string="Lingkup Diklat" filters="1" invisible="0"/>
                 <field name="branch_id" string="Cabang" filters="1" invisible="0"/>
                 <field name="state" string="Status" filters="1" invisible="0"/>
-                </calendar>
+            </calendar>
         </field>
     </record>
 

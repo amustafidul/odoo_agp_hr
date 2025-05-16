@@ -27,6 +27,5 @@
             <field name="implied_ids" eval="[(4, ref('group_agp_training_officer')), (4, ref('hr.group_hr_manager'))]"/>
             <field name="comment">Grup untuk manajer SDM yang memiliki akses penuh, termasuk approval final dan konfigurasi modul training.</field>
         </record>
-
     </data>
 </odoo>

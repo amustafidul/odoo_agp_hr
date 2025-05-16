@@ -168,6 +168,5 @@
             <field name="perm_unlink" eval="0"/>
             <field name="domain_force">[(1,'=',1)]</field>
         </record>
-
     </data>
 </odoo>

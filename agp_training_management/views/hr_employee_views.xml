@@ -3,7 +3,8 @@
     <record id="view_employee_form_inherit_training_history" model="ir.ui.view">
         <field name="name">hr.employee.form.inherit.training.history</field>
         <field name="model">hr.employee</field>
-        <field name="inherit_id" ref="hr.view_employee_form"/> <field name="arch" type="xml">
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
             <xpath expr="//page[last()]" position="after">
                 <page string="Histori Training">
                     <field name="completed_training_ids" readonly="1">

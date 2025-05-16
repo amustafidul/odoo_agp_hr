@@ -16,7 +16,7 @@ class TnaRekapReportXlsx(models.AbstractModel):
             domain.append(('branch_id', 'in', branch_ids.ids))
         if department_ids:
             domain.append(('department_id', 'in', department_ids.ids))
-        domain.append(('state', 'in', ['approved', 'realized'])) # Contoh filter status
+        domain.append(('state', 'in', ['approved', 'realized']))
 
         proposed_trainings = self.env['tna.proposed.training'].search(
             domain,

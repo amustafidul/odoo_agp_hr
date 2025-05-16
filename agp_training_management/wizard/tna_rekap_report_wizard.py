@@ -21,7 +21,6 @@ class TnaRekapReportWizard(models.TransientModel):
         string='Divisi',
         help="Pilih divisi tertentu atau biarkan kosong untuk semua divisi."
     )
-    # Add filter lain jika perlu, misal status usulan (approved, realized, dll.)
     # status_proposed_training = fields.Selection([
     #     ('approved', 'Disetujui'),
     #     ('realized', 'Sudah Direalisasi')

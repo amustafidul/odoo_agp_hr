@@ -335,10 +335,6 @@ class TnaProposedTraining(models.Model):
             'department_id': self.department_id.id if self.department_id else False,
             'company_id': self.company_id.id if self.company_id else self.env.company.id,
             'state': 'draft',
-            # 'rkap_link_notes': "Direalisasikan dari Usulan TNA: " + self.submission_id.name + " - " + self.name, # Contoh
-            # Field lain yang relevan dari blueprint untuk training.realization
-            # 'planned_start_date': Bisa diisi jika proposed_period_char bisa diparsing, atau dikosongkan dulu
-            # 'planned_duration_days': self.estimated_duration_days,
         }
 
         try:
@@ -369,11 +365,6 @@ class TnaProposedTraining(models.Model):
         }
 
     def action_set_to_pending_approval(self):
-        """Mengembalikan state ke 'pending_approval' oleh SDM jika ada kesalahan."""
-        # Add pengecekan hak akses jika perlu
-        # if not self.env.user.has_group('hr.group_hr_manager'):
-        #     raise UserError("Hanya SDM yang bisa melakukan aksi ini.")
-
         for rec in self:
             if rec.training_realization_id:
                 raise UserError(f"Tidak bisa dikembalikan ke 'Pending Approval' karena sudah ada Realisasi Training ({rec.training_realization_id.name_get()[0][1]}) yang terhubung. Harap batalkan atau hapus Realisasi Training tersebut terlebih dahulu jika ingin mengubah status usulan ini.")

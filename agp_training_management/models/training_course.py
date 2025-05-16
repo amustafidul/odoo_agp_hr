@@ -120,8 +120,6 @@ class TrainingCourse(models.Model):
                     CompletedTraining.create({
                         'employee_id': employee.id,
                         'realization_id': self.id,
-                        # Field related akan otomatis terisi dari realization_id
-                        # 'notes': 'Dibuat otomatis dari penyelesaian training.' # Opsional
                     })
 
             TrainingEvaluation = self.env['training.evaluation']

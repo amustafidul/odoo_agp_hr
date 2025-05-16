@@ -25,7 +25,6 @@ def evaluate_training_effectiveness(avg_score):
 
     evaluation.input['avg_score'] = avg_score
 
-    # Compute
     evaluation.compute()
 
     return evaluation.output['effectiveness']

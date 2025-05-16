@@ -113,7 +113,8 @@
                                     <field name="currency_id" invisible="1"/>
                                     <field name="notes" optional="show"/>
                                 </tree>
-                                <form> <group>
+                                <form>
+                                    <group>
                                         <field name="employee_id" required="1"/>
                                         <field name="employment_type" readonly="1"/>
                                         <field name="estimated_cost_participant" required="1"/>

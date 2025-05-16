@@ -22,7 +22,7 @@ class TnaSubmission(models.Model):
         required=True,
         ondelete='restrict',
         tracking=True,
-        domain="[('state', '=', 'open')]",
+        domain=[('state', '=', 'open'),('date_start_submission', '<=', fields.Date.today()),('date_end_submission', '>=', fields.Date.today())],
         help="Pilih periode TNA yang sedang dibuka untuk pengisian usulan."
     )
     department_id = fields.Many2one(
@@ -188,14 +188,6 @@ class TnaSubmission(models.Model):
             'state': 'submitted',
             'submission_date': fields.Datetime.now()
         })
-        # TODO: Kirim notifikasi ke grup SDM atau Penanggung Jawab Periode TNA
-        # if self.period_id.responsible_user_id:
-        #     self.activity_schedule(
-        #         'mail.mail_activity_data_todo',
-        #         summary=f'Usulan TNA {self.name} perlu direview',
-        #         note=f'Usulan TNA dari {self.department_id.name or ""} - {self.branch_id.name or ""} telah diajukan.',
-        #         user_id=self.period_id.responsible_user_id.id
-        #     )
         return True
 
     def action_mark_processed_by_sdm(self):
