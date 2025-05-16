@@ -318,16 +318,24 @@ class TnaProposedTraining(models.Model):
             raise UserError(
                 f"Usulan ini sudah direalisasikan sebelumnya (Realisasi: {self.training_realization_id.name}).")
 
-        final_employee_ids = self.participant_line_ids.mapped('employee_id').ids
-        if not final_employee_ids:
-            raise UserError("Tidak ada peserta yang diusulkan dalam daftar.")
+        course_participant_lines_vals = []
+        if not self.participant_line_ids:
+            raise UserError("Tidak ada peserta yang diusulkan dalam daftar usulan TNA untuk direalisasikan.")
+
+        for proposed_participant in self.participant_line_ids:
+            course_participant_lines_vals.append((0, 0, {
+                'employee_id': proposed_participant.employee_id.id,
+                'estimated_cost_from_tna': proposed_participant.estimated_cost_participant,
+                'actual_cost_participant': proposed_participant.estimated_cost_participant,
+                'currency_id': proposed_participant.currency_id.id,
+            }))
 
         training_course_vals = {
             'name': self.name,
             'originating_tna_id': self.id,
             'training_scope_id': self.training_scope_id.id if self.training_scope_id else False,
             'description': self.description,
-            'employee_ids': [(6, 0, final_employee_ids)],
+            'participant_line_ids': course_participant_lines_vals,
             'budgeted_cost': self.estimated_cost,
             'currency_id': self.currency_id.id if self.currency_id else self.env.company.currency_id.id,
             'organizer': self.proposed_organizer,
@@ -337,24 +345,12 @@ class TnaProposedTraining(models.Model):
             'state': 'draft',
         }
 
-        try:
-            training_course_model = self.env['training.course']
-        except KeyError:
-            raise UserError("Model 'training.course' belum terdefinisi.")
-
-        new_realization_training = training_course_model.create(training_course_vals)
+        new_realization_training = self.env['training.course'].create(training_course_vals)
 
         self.write({
             'state': 'realized',
             'training_realization_id': new_realization_training.id
         })
-
-        self.activity_schedule(
-            activity_type_id=self.env.ref('mail.mail_activity_data_todo').id,
-            summary=f"Training '{self.name}' telah DIBUATKAN REALISASI",
-            note=f"Usulan training '{self.name}' telah berhasil direalisasikan. Silakan lengkapi data pelaksanaan pada Realisasi Training: {new_realization_training.name_get()[0][1] if new_realization_training else 'N/A'}.",
-            user_id=self.env.user.id
-        )
 
         return {
             'type': 'ir.actions.act_window',

@@ -1,5 +1,6 @@
 from odoo import models, fields, api
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
+import datetime
 
 
 class TnaPeriod(models.Model):
@@ -17,11 +18,12 @@ class TnaPeriod(models.Model):
         store=True,
         readonly=False
     )
-    year = fields.Integer(
+    year = fields.Char(
         string='Tahun',
         required=True,
         tracking=True,
-        default=lambda self: fields.Date.today().year
+        size=4,
+        default=lambda self: str(datetime.date.today().year)
     )
     semester = fields.Selection([
         ('1', 'Semester I'),
@@ -78,6 +80,20 @@ class TnaPeriod(models.Model):
         ('year_semester_company_uniq', 'unique (year, semester, company_id)',
          'Periode TNA untuk tahun, semester, dan perusahaan yang sama sudah ada!')
     ]
+
+    @api.constrains('year')
+    def _check_year_format(self):
+        for record in self:
+            if record.year:
+                if not record.year.isdigit():
+                    raise ValidationError("Tahun harus berupa angka (contoh: 2025).")
+                if len(record.year) != 4:
+                    raise ValidationError("Tahun harus terdiri dari 4 digit (contoh: 2025).")
+
+                year_int = int(record.year)
+                current_year = datetime.date.today().year
+                if not (current_year - 20 <= year_int <= current_year + 20):
+                    raise ValidationError(f"Tahun harus dalam rentang yang wajar (misal, antara {current_year - 20} dan {current_year + 20}).")
 
     @api.depends('year', 'semester')
     def _compute_name(self):

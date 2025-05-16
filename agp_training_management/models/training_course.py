@@ -45,7 +45,12 @@ class TrainingCourse(models.Model):
     )
     training_scope_id = fields.Many2one('tna.training.scope', string='Lingkup Diklat')
     description = fields.Text(string='Deskripsi Training Final')
-    employee_ids = fields.Many2many('hr.employee', string="Peserta Final Training")
+    participant_line_ids = fields.One2many(
+        'training.course.participant.line',
+        'course_id',
+        string='Peserta Final & Biaya Realisasi',
+        copy=True
+    )
     budgeted_cost = fields.Monetary(string="Biaya Estimasi/Budget (dari TNA)", currency_field='currency_id')
     organizer = fields.Char(string="Penyelenggara Usulan/Final")
     branch_id = fields.Many2one('res.branch', string="Cabang")
@@ -69,7 +74,14 @@ class TrainingCourse(models.Model):
         ], string="Tipe Lokasi Training", tracking=True)
     training_location_detail = fields.Char(string="Detail Lokasi/Platform Training", tracking=True)
 
-    actual_cost = fields.Monetary(string="Biaya Realisasi", currency_field='currency_id', tracking=True)
+    actual_cost = fields.Monetary(
+        string="Total Biaya Realisasi",
+        currency_field='currency_id',
+        compute='_compute_actual_cost_from_lines',
+        store=True,
+        tracking=True,
+        help="Total biaya realisasi dari semua peserta."
+    )
 
     final_organizer_vendor_id = fields.Many2one('res.partner', string="Vendor/Penyelenggara Final", domain="[('is_company','=',True)]")
     rkap_link_notes = fields.Text(string="Catatan Keterkaitan dengan RKAP")
@@ -87,6 +99,11 @@ class TrainingCourse(models.Model):
         state_list = [key_val[0] for key_val in self._fields['state'].selection]
         return state_list
 
+    @api.depends('participant_line_ids.actual_cost_participant')
+    def _compute_actual_cost_from_lines(self):
+        for course in self:
+            course.actual_cost = sum(line.actual_cost_participant for line in course.participant_line_ids)
+
     @api.depends('actual_start_date', 'actual_end_date')
     def _compute_actual_duration_days(self):
         for rec in self:
@@ -96,6 +113,7 @@ class TrainingCourse(models.Model):
             else:
                 rec.actual_duration_days = 0
 
+    @api.depends('participant_line_ids')
     def _compute_evaluation_count(self):
         for record in self:
             try:
@@ -105,46 +123,43 @@ class TrainingCourse(models.Model):
 
     def action_set_state_completed(self):
         self.ensure_one()
-
         res = self.write({'state': 'completed'})
 
         if res and self.state == 'completed':
             CompletedTraining = self.env['hr.employee.completed.training']
-            for employee in self.employee_ids:
+            TrainingEvaluation = self.env['training.evaluation']
+
+            for line in self.participant_line_ids:
+                employee = line.employee_id
+                if not employee:
+                    continue
+
                 existing_completed_training = CompletedTraining.search([
                     ('employee_id', '=', employee.id),
                     ('realization_id', '=', self.id)
                 ], limit=1)
-
                 if not existing_completed_training:
                     CompletedTraining.create({
                         'employee_id': employee.id,
                         'realization_id': self.id,
                     })
 
-            TrainingEvaluation = self.env['training.evaluation']
-            for employee in self.employee_ids:
                 existing_evaluation = TrainingEvaluation.search([
                     ('employee_id', '=', employee.id),
                     ('course_id', '=', self.id)
                 ], limit=1)
-
                 if not existing_evaluation:
                     eval_vals = TrainingEvaluation.default_get(TrainingEvaluation.fields_get_keys())
-
                     eval_vals.update({
                         'employee_id': employee.id,
                         'course_id': self.id,
-                        'branch_id': employee.hr_branch_id.id if employee.hr_branch_id else (
-                            self.branch_id.id if self.branch_id else False),
+                        'branch_id': self.branch_id.id if self.branch_id else False,
                         'training_date_from': self.actual_start_date,
                         'training_date_to': self.actual_end_date,
                         'training_organizer': self.organizer,
                         'supervisor_id': employee.parent_id.id if employee.parent_id else False,
-                        # 'status': 'draft',
                     })
                     TrainingEvaluation.create(eval_vals)
-
         return res
 
     def action_register(self):

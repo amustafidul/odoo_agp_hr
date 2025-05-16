@@ -41,11 +41,11 @@
         'views/training_evaluation_view.xml',
         'views/training_management_menus.xml',
     ],
-    # 'assets': {
-    #     'web.assets_backend': [
-    #         'agp_training_management/static/src/css/custom_styles.css',
-    #     ],
-    # },
+    'assets': {
+        'web.assets_backend': [
+            'agp_training_management/static/src/css/custom_styles.css',
+        ],
+    },
     'installable': True,
     'application': True,
     'auto_install': False,

@@ -58,13 +58,13 @@
         <field name="arch" type="xml">
             <form string="Detail Usulan Training">
                 <header>
-                    <button name="action_approve" string="Approve Usulan Ini" type="object" class="btn-primary" attrs="{'invisible': ['|', ('state', '!=', 'pending_approval'), ('can_approve_or_reject', '=', False)]}" groups="hr.group_hr_manager"/>
-                    <button name="action_reject" string="Reject Usulan Ini" type="object" attrs="{'invisible': ['|', ('state', '!=', 'pending_approval'), ('can_approve_or_reject', '=', False)]}" groups="hr.group_hr_manager" class="oe_highlight oe_button_danger" confirm="Apakah Anda yakin ingin menolak usulan ini? Jangan lupa isi alasan penolakan jika perlu."/>
+                    <button name="action_approve" string="Approve Usulan Ini" type="object" class="btn-primary" attrs="{'invisible': ['|', ('state', '!=', 'pending_approval'), ('can_approve_or_reject', '=', False)]}" groups="agp_training_management.group_agp_training_manager"/>
+                    <button name="action_reject" string="Reject Usulan Ini" type="object" attrs="{'invisible': ['|', ('state', '!=', 'pending_approval'), ('can_approve_or_reject', '=', False)]}" groups="agp_training_management.group_agp_training_manager" class="oe_highlight oe_button_danger" confirm="Apakah Anda yakin ingin menolak usulan ini? Jangan lupa isi alasan penolakan jika perlu."/>
                     <button name="action_realize_training" string="Realisasikan Training" type="object"
                         class="btn-success" attrs="{'invisible': ['|', ('state', '!=', 'approved'), ('training_realization_id', '!=', False)]}"
-                        groups="hr.group_hr_manager"
+                        groups="agp_training_management.group_agp_training_manager"
                         confirm="Anda akan membuat draft Realisasi Training berdasarkan usulan ini. Lanjutkan?"/>
-                    <button name="action_set_to_pending_approval" string="Kembalikan ke Pending" type="object" attrs="{'invisible': [('state', 'not in', ['approved', 'rejected'])]}" groups="hr.group_hr_manager" confirm="Aksi ini akan mengembalikan status ke 'Menunggu Approval SDM'. Lanjutkan?"/>
+                    <button name="action_set_to_pending_approval" string="Kembalikan ke Pending" type="object" attrs="{'invisible': [('state', 'not in', ['approved', 'rejected'])]}" groups="agp_training_management.group_agp_training_manager" confirm="Aksi ini akan mengembalikan status ke 'Menunggu Approval SDM'. Lanjutkan?"/>
                     <field name="state" widget="statusbar" statusbar_visible="new,pending_approval,approved,rejected,realized"/>
                 </header>
                 <sheet>
