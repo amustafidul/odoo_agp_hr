@@ -775,21 +775,34 @@ class HrEmployee(models.Model):
     @api.model
     def create(self, vals):
         if 'name' in vals and vals.get('name'):
-            vals['name'] = vals['name'].upper()
+            vals['name'] = vals['name'].title()
         record = super(HrEmployee, self).create(vals)
         record.action_fetch_penilaian_kinerja()
         return record
 
     def write(self, vals):
         if 'name' in vals and vals.get('name'):
-            vals['name'] = vals['name'].upper()
+            vals['name'] = vals['name'].title()
         trigger_fetch = False
         if 'nip_organik' in vals or 'nip_pkwt' in vals:
             trigger_fetch = True
         res = super(HrEmployee, self).write(vals)
-        if trigger_fetch:
+        if res:
+            if trigger_fetch:
+                for rec in self:
+                    rec.action_fetch_penilaian_kinerja()
             for rec in self:
-                rec.action_fetch_penilaian_kinerja()
+                message = _("Perubahan pada data karyawan '%s' berhasil disimpan.") % rec.name
+                self.env['bus.bus']._sendone(
+                    (self._cr.dbname, 'res.partner', self.env.user.partner_id.id),
+                        'simple_notification',
+                        {
+                            'type': 'success',
+                            'title': _('Sukses'),
+                            'message': message,
+                            'sticky': False,
+                        }
+                    )
         return res
 
     def action_fetch_penilaian_kinerja(self):
@@ -1249,7 +1262,17 @@ class HrEmployee(models.Model):
         if not attachment_ids:
             raise UserError(_("No files uploaded."))
 
+        MAX_FILE_SIZE_MB = 5
+        MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+
         for attachment in attachment_ids:
+            if attachment.file_size > MAX_FILE_SIZE_BYTES:
+                message = _("File '%s' (%s MB) terlalu besar. Ukuran maksimal yang diizinkan adalah %sMB.") % \
+                          (attachment.name,
+                           round(attachment.file_size / (1024 * 1024), 2),
+                           MAX_FILE_SIZE_MB)
+                raise UserError(message)
+
             name, _ = attachment.name.rsplit('.', 1) if '.' in attachment.name else (attachment.name, '')
             employee = self.env['hr.employee'].search([('name', '=ilike', name)], limit=1)
 

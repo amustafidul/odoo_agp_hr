@@ -150,21 +150,21 @@
                         </tree>
                     </field>
                 </page>
-                <page name="hr_employee_sertifikasi_pelatihan" string="Sertifikasi &amp; Pelatihan">
-                    <field name="hr_employee_sertifikasi_pelatihan_ids" attrs="{'readonly': [('is_editor_employee_data','=',False)]}">
-                        <tree editable="bottom">
-                            <field name="name" string="Nama Training"/>
-                            <field name="organizer" string="Penyelenggara"/>
-                            <field name="certificate_doc_attachment" invisible="1"/>
-                            <field name="certificate_attachment_id" filename="certificate_filename" widget="many2many_binary"/>
-                            <field name="certificate_filename" invisible="1"/>
-                            <field name="certificate_doc_name" invisible="1"/>
-                            <field name="certification_start_date"/>
-                            <field name="certification_end_date"/>
-                            <field name="certification_expiration_date"/>
-                        </tree>
-                    </field>
-                </page>
+<!--                <page name="hr_employee_sertifikasi_pelatihan" string="Sertifikasi &amp; Pelatihan">-->
+<!--                    <field name="hr_employee_sertifikasi_pelatihan_ids" attrs="{'readonly': [('is_editor_employee_data','=',False)]}">-->
+<!--                        <tree editable="bottom">-->
+<!--                            <field name="name" string="Nama Training"/>-->
+<!--                            <field name="organizer" string="Penyelenggara"/>-->
+<!--                            <field name="certificate_doc_attachment" invisible="1"/>-->
+<!--                            <field name="certificate_attachment_id" filename="certificate_filename" widget="many2many_binary"/>-->
+<!--                            <field name="certificate_filename" invisible="1"/>-->
+<!--                            <field name="certificate_doc_name" invisible="1"/>-->
+<!--                            <field name="certification_start_date"/>-->
+<!--                            <field name="certification_end_date"/>-->
+<!--                            <field name="certification_expiration_date"/>-->
+<!--                        </tree>-->
+<!--                    </field>-->
+<!--                </page>-->
                 <page name="hr_sk_tim" string="Penugasan Khusus / Tim">
                     <field name="sk_tim_ids" attrs="{'readonly': [('is_editor_employee_data','=',False)]}">
                         <tree>
