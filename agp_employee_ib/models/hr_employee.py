@@ -446,7 +446,6 @@ class HrEmployee(models.Model):
                 employee.ukuran_atasan = False
                 employee.jenis_bawahan = False
                 employee.ukuran_bawahan = False
-
     ##
 
     def _compute_masa_kerja(self):

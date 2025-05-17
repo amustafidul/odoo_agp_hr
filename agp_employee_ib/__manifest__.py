@@ -43,8 +43,6 @@
         'data/sequence.xml',
         'wizard/hr_employee_history_wizard_view.xml',
         'wizard/wizard_import_employee_view.xml',
-        # 'wizard/hr_leave_reject_wizard_view.xml',
-        # 'wizard/hr_leave_ask_for_revision_wizard_view.xml',
         'wizard/bulk_upload_attachment_view.xml',
         'views/res_users_view.xml',
         'views/hr_branch_view.xml',
