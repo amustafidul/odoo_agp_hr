@@ -183,6 +183,10 @@
             <xpath expr="//field[@name='state']" position="attributes">
                 <attribute name="statusbar_visible">draft</attribute>
             </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="ask_for_revision_reason"/>
+                <field name="rejection_reason"/>
+            </xpath>
 <!--            <xpath expr="//button[@name='action_refuse']" position="replace">-->
 <!--                <button name="set_to_draft" type="object" string="Revise" attrs="{'invisible': [('state','!=','validate')]}"/>-->
 <!--            </xpath>-->

@@ -12,10 +12,13 @@
         'base',
         'report_xlsx',
         'hr_attendance',
+        'hr_attendance_geolocation',
         'agp_dinas_ib'
     ],
     'data': [
         'security/ir.model.access.csv',
+        'wizard/hr_attendance_keterangan_wizard_view.xml',
+        'view/hr_attendance_views.xml',
         'reports/attendance_absensi_report_view.xml',
         'reports/attendance_absensi_report_template.xml',
         'reports/attendance_absensi_report_action.xml',

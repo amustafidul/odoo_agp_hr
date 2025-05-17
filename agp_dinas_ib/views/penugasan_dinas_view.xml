@@ -178,6 +178,8 @@
                         <group>
                             <field name="date_from" required="1" attrs="{'readonly': [('state','not in',['draft'])]}"/>
                             <field name="date_to" required="1" attrs="{'readonly': [('state','not in',['draft'])]}"/>
+                            <field name="is_pindah_tujuan" invisible="1"/>
+                            <field name="date_change_dest" attrs="{'readonly': [('state','not in',['draft'])], 'invisible': [('is_pindah_tujuan','=',False)]}"/>
                             <field name="facility" readonly="1"/>
                             <field name="participant_ids" widget="many2many_tags" context="{'use_sppd_get': True}" attrs="{'readonly': [('state','not in',['draft'])]}"/>
                             <field name="pengikut_eksternal" widget="boolean_toggle"/>

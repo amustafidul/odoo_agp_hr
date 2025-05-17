@@ -47,6 +47,8 @@ class HrLeaveDinas(models.Model):
     destination_place = fields.Char('Tempat Tujuan', compute="_compute_destination_place", store=True)
     date_from = fields.Date("Tanggal Berangkat")
     date_to = fields.Date("Tanggal Kembali")
+    date_change_dest = fields.Date("Tanggal Pindah Tujuan")
+    is_pindah_tujuan = fields.Boolean()
     facility = fields.Text("Fasilitas", default="Dengan Fasilitas Sebagaimana Terlampir")
     total_biaya_dinas = fields.Monetary(string="Total Biaya Dinas", compute='_compute_total_biaya_dinas',
                                         currency_field='currency_id')

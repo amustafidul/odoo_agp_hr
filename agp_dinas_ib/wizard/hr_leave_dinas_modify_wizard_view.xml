@@ -9,6 +9,7 @@
                     <field name="modification_type"/>
                     <field name="new_date_to" attrs="{'invisible': [('modification_type', 'not in', ['early_return','extend_days'])]}"/>
                     <field name="new_sppd_location" attrs="{'invisible': [('modification_type', 'not in', ['change_location'])]}"/>
+                    <field name="city_transfer_date" attrs="{'invisible': [('modification_type', 'not in', ['change_location'])]}"/>
                     <field name="reason"/>
                 </group>
                 <footer>

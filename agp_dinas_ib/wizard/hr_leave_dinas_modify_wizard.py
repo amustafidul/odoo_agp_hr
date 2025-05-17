@@ -19,6 +19,7 @@ class HrLeaveDinasModifyWizard(models.TransientModel):
 
     new_date_to = fields.Date('Tanggal Kembali Baru')
     new_sppd_location = fields.Char('Tujuan Baru')
+    city_transfer_date = fields.Date(string='Tanggal Efektif Pemindahan Tujuan')
     reason = fields.Text('Alasan', required=True)
 
     leave_dinas_id = fields.Many2one('hr.leave.dinas', string='SPPD', required=True)
@@ -302,6 +303,8 @@ class HrLeaveDinasModifyWizard(models.TransientModel):
 
             sppd.destination_place = self.new_sppd_location
             sppd.state = 'running'
+            sppd.is_pindah_tujuan = True
+            sppd.date_change_dest = self.city_transfer_date
             sppd.message_post(body=_(
                 "SPPD dimodifikasi: <br/>"
                 "<b>Jenis</b>: Pindah Lokasi Tujuan Dinas<br/>"
