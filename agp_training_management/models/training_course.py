@@ -153,7 +153,7 @@ class TrainingCourse(models.Model):
                     eval_vals.update({
                         'employee_id': employee.id,
                         'course_id': self.id,
-                        'branch_id': self.branch_id.id if self.branch_id else False, #
+                        'branch_id': self.branch_id.id if self.branch_id else False,
                         'training_date_from': self.actual_start_date,
                         'training_date_to': self.actual_end_date,
                         'training_organizer': self.organizer,

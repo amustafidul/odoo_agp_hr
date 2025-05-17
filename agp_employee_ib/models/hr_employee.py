@@ -210,7 +210,7 @@ class HrEmployee(models.Model):
     hr_employee_ijazah_ids = fields.One2many('hr.employee.ijazah', 'employee_id', string="Ijazah")
     hr_employee_hukuman_ids = fields.One2many('hr.employee.hukuman', 'employee_id', string="Hukuman")
     hr_employee_sertifikasi_pelatihan_ids = fields.One2many('hr.employee.sertifikasi.pelatihan', 'employee_id', string="Sertifikasi & Pelatihan")
-    hr_employee_unit_id = fields.Many2one('hr.employee.unit', string="Unit", index=True)
+    hr_employee_unit_id = fields.Many2one('hr.employee.unit', string="Unit", index=True, tracking=True)
     keterangan_jabatan = fields.Char('Keterangan Jabatan')
     keterangan_jabatan_id = fields.Many2one('hr.employee.keterangan.jabatan', string='Jabatan', index=True, help="Pilih keterangan jabatan struktural atau umum.")
     jabatan = fields.Char('Jabatan')
@@ -281,7 +281,7 @@ class HrEmployee(models.Model):
     ktp_name = fields.Char('ktp_name', compute='_compute_ktp_name')
     cabang_kerja_id = fields.Many2one('res.branch')
     sub_cabang_kerja_id = fields.Many2one('sub.branch')
-    hr_branch_id = fields.Many2one('hr.branch', compute='_compute_hr_branch_id', string='Penempatan', readonly=True, store=True)
+    hr_branch_id = fields.Many2one('hr.branch', compute='_compute_hr_branch_id', string='Penempatan', readonly=True, store=True, tracking=True)
     sub_branch_id = fields.Many2one('hr.employee.unit.penempatan')
     alamat_sub_cabang = fields.Text('Alamat')
 
@@ -569,6 +569,31 @@ class HrEmployee(models.Model):
                 name = f"{rec.name} - {rec.keterangan_jabatan_id.name or ''}"
             res.append((rec.id, name))
         return res
+
+    @api.constrains('birthday')
+    def _check_birthday_valid(self):
+        for employee in self:
+            if employee.birthday:
+                if employee.birthday > fields.Date.today():
+                    raise ValidationError(_("Employee's birthday cannot be in the future."))
+                min_age = 17
+                today = fields.Date.today()
+                age = relativedelta(today, employee.birthday).years
+                if age < min_age:
+                    raise ValidationError(_("Employee must be at least %d years old.") % min_age)
+
+    @api.constrains(
+        'first_contract_date')
+    def _check_hire_date_valid(self):
+        for employee in self:
+            if employee.first_contract_date and employee.first_contract_date > fields.Date.today():
+                raise ValidationError(_("Hire date cannot be in the future."))
+
+    @api.constrains('first_contract_date', 'departure_date')
+    def _check_departure_date_after_hire_date(self):
+        for employee in self:
+            if employee.first_contract_date and employee.departure_date and employee.departure_date < employee.first_contract_date:
+                raise ValidationError(_("Departure date cannot be earlier than hire date."))
 
     def cron_assign_kelompok_umur(self):
         """
